@@ -1,1 +1,11 @@
-version: "3.8"
+version: '3.8'
+
+services:
+  db:
+    container_name: ewallet-db
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      ./compose.env
