@@ -1,2 +1,7 @@
 port: "8080"
-
+db:
+  username: "dev"
+  host: "localhost"
+  port: "5432"
+  dbname: "ewallet"
+  sslmode: "disable"
