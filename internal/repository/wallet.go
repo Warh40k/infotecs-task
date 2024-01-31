@@ -25,7 +25,11 @@ func (r WalletRepository) GetWallet(id string) (domain.Wallet, error) {
 	query := fmt.Sprintf("SELECT * from %s WHERE id=$1", walletsTable)
 	err := r.db.Get(&wallet, query, id)
 
-	return wallet, err
+	if err != nil {
+		return wallet, &domain.NotFoundError{Message: "No wallet with the specified id"}
+	}
+
+	return wallet, nil
 }
 
 func (r WalletRepository) ShowHistory(id string) ([]domain.Transaction, error) {

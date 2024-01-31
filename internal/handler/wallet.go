@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"github.com/Warh40k/infotecs_task/internal/domain"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,14 +18,20 @@ func (h *Handler) createWallet(c *gin.Context) {
 
 func (h *Handler) getWallet(c *gin.Context) {
 	walletId := c.Param("walletId")
-	if walletId == "" {
+	/*	if walletId == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
-	}
+	}*/
 	wallet, err := h.services.GetWallet(walletId)
+	var notFound *domain.NotFoundError
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+		if errors.As(err, &notFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, err)
+			return
+		} else {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, wallet)
