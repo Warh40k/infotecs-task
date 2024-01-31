@@ -7,7 +7,8 @@ CREATE TABLE wallets
 CREATE TABLE transactions
 (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    "from" uuid references wallets on delete RESTRICT,
-    "to" uuid references wallets on delete RESTRICT,
-    amount decimal CONSTRAINT nn_amount CHECK (amount >= 0)
+    "from" uuid REFERENCES wallets ON DELETE RESTRICT,
+    "to" uuid REFERENCES wallets ON DELETE RESTRICT,
+    amount decimal CONSTRAINT nn_amount CHECK (amount >= 0),
+    time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
