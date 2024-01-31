@@ -11,20 +11,22 @@ type WalletPostgres struct {
 	db *sqlx.DB
 }
 
-func (r WalletPostgres) CreateWallet() (*domain.Wallet, error) {
-	wallet := new(domain.Wallet)
+func (r WalletPostgres) CreateWallet() (domain.Wallet, error) {
+	var wallet domain.Wallet
 
 	query := fmt.Sprintf("INSERT INTO %s(balance) VALUES(%d) RETURNING id, balance", walletsTable, defaultBalance)
-	err := r.db.Get(wallet, query)
-	if err != nil {
-		return nil, err
-	}
-	return wallet, nil
+	err := r.db.Get(&wallet, query)
+
+	return wallet, err
 }
 
-func (r WalletPostgres) GetWallet(id string) (*domain.Wallet, error) {
-	//TODO implement me
-	panic("implement me")
+func (r WalletPostgres) GetWallet(id string) (domain.Wallet, error) {
+	var wallet domain.Wallet
+
+	query := fmt.Sprintf("SELECT * from %s WHERE id=$1", walletsTable)
+	err := r.db.Get(&wallet, query, id)
+
+	return wallet, err
 }
 
 func (r WalletPostgres) ShowHistory(id string) ([]domain.Transaction, error) {

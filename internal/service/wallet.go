@@ -10,11 +10,11 @@ type WalletService struct {
 	repo repository.Wallet
 }
 
-func (s WalletService) CreateWallet() (*domain.Wallet, error) {
+func (s WalletService) CreateWallet() (domain.Wallet, error) {
 	return s.repo.CreateWallet()
 }
 
-func (s WalletService) GetWallet(id string) (*domain.Wallet, error) {
+func (s WalletService) GetWallet(id string) (domain.Wallet, error) {
 	return s.repo.GetWallet(id)
 }
 
