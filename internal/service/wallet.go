@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/Warh40k/infotecs_task/internal/domain"
 	"github.com/Warh40k/infotecs_task/internal/repository"
-	"github.com/shopspring/decimal"
 )
 
 type WalletService struct {
@@ -22,8 +21,8 @@ func (s WalletService) ShowHistory(id string) ([]domain.Transaction, error) {
 	return s.repo.ShowHistory(id)
 }
 
-func (s WalletService) SendMoney(from, to string, amount decimal.Decimal) error {
-	return s.repo.SendMoney(from, to, amount)
+func (s WalletService) SendMoney(tr domain.Transaction) error {
+	return s.repo.SendMoney(tr)
 }
 
 func NewWalletService(repo repository.Wallet) *WalletService {

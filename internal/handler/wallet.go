@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/Warh40k/infotecs_task/internal/domain"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -34,5 +35,25 @@ func (h *Handler) getHistory(c *gin.Context) {
 }
 
 func (h *Handler) sendMoney(c *gin.Context) {
+	var transaction domain.Transaction
+	walletId := c.Param("walletId")
+	transaction.From = walletId
 
+	if err := c.BindJSON(&transaction); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	if transaction.From == transaction.To {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	err := h.services.SendMoney(transaction)
+	if err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
