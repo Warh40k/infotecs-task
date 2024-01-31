@@ -10,24 +10,20 @@ type WalletService struct {
 	repo repository.Wallet
 }
 
-func (w WalletService) CreateWallet() (domain.Wallet, error) {
-	//TODO implement me
-	panic("implement me")
+func (s WalletService) CreateWallet() (*domain.Wallet, error) {
+	return s.repo.CreateWallet()
 }
 
-func (w WalletService) GetWallet(id string) (domain.Wallet, error) {
-	//TODO implement me
-	panic("implement me")
+func (s WalletService) GetWallet(id string) (*domain.Wallet, error) {
+	return s.repo.GetWallet(id)
 }
 
-func (w WalletService) ShowHistory(id string) ([]domain.Transaction, error) {
-	//TODO implement me
-	panic("implement me")
+func (s WalletService) ShowHistory(id string) ([]domain.Transaction, error) {
+	return s.repo.ShowHistory(id)
 }
 
-func (w WalletService) SendMoney(from, to string, amount decimal.Decimal) error {
-	//TODO implement me
-	panic("implement me")
+func (s WalletService) SendMoney(from, to string, amount decimal.Decimal) error {
+	return s.repo.SendMoney(from, to, amount)
 }
 
 func NewWalletService(repo repository.Wallet) *WalletService {

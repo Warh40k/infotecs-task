@@ -9,6 +9,7 @@ import (
 const (
 	walletsTable      = "wallets"
 	transactionsTable = "transactions"
+	defaultBalance    = 100
 )
 
 type Config struct {

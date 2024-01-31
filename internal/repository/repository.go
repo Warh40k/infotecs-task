@@ -7,8 +7,8 @@ import (
 )
 
 type Wallet interface {
-	CreateWallet() (domain.Wallet, error)
-	GetWallet(id string) (domain.Wallet, error)
+	CreateWallet() (*domain.Wallet, error)
+	GetWallet(id string) (*domain.Wallet, error)
 	ShowHistory(id string) ([]domain.Transaction, error)
 	SendMoney(from, to string, amount decimal.Decimal) error
 }
