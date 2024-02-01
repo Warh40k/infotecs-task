@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"github.com/Warh40k/infotecs_task/internal/app"
 	"github.com/Warh40k/infotecs_task/internal/domain"
 	"github.com/jmoiron/sqlx"
 )
@@ -26,7 +27,7 @@ func (r WalletRepository) GetWallet(id string) (domain.Wallet, error) {
 	err := r.db.Get(&wallet, query, id)
 
 	if err != nil {
-		return wallet, &domain.NotFoundError{Message: "No wallet with the specified id"}
+		return wallet, &app.NotFoundError{Message: "No wallet with the specified id"}
 	}
 
 	return wallet, nil
@@ -45,12 +46,12 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 
 	fromWallet, err := getWalletTx(tx, tr.From)
 	if err != nil {
-		return err
+		return app.NotFoundError{Message: "error getting sender's wallet", Err: err}
 	}
 
 	toWallet, err := getWalletTx(tx, tr.To)
 	if err != nil {
-		return err
+		return app.NotFoundError{Message: "error getting receiver's wallet", Err: err}
 	}
 
 	fromWallet.Balance = fromWallet.Balance.Sub(tr.Amount)
@@ -58,18 +59,18 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 
 	if err = updateBalanceTx(tx, fromWallet); err != nil {
 		tx.Rollback()
-		return err
+		return app.BadRequestError{Message: "error updating sender's balance", Err: err}
 	}
 
 	if err = updateBalanceTx(tx, toWallet); err != nil {
 		tx.Rollback()
-		return err
+		return app.BadRequestError{Message: "error updating receiver's balance", Err: err}
 	}
 
 	addTransactionQuery := fmt.Sprintf(`INSERT INTO %s("from","to",amount) VALUES($1,$2,$3)`, transactionsTable)
 	if _, err = tx.Exec(addTransactionQuery, tr.From, tr.To, tr.Amount); err != nil {
 		tx.Rollback()
-		return err
+		return app.BadRequestError{Message: "error saving transaction", Err: err}
 	}
 
 	return tx.Commit()

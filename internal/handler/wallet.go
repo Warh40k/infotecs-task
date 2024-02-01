@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"github.com/Warh40k/infotecs_task/internal/app"
 	"github.com/Warh40k/infotecs_task/internal/domain"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -23,15 +24,14 @@ func (h *Handler) getWallet(c *gin.Context) {
 		return
 	}*/
 	wallet, err := h.services.GetWallet(walletId)
-	var notFound *domain.NotFoundError
+	var notFound *app.NotFoundError
 	if err != nil {
 		if errors.As(err, &notFound) {
-			c.AbortWithStatusJSON(http.StatusNotFound, err)
-			return
+			c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
 		} else {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
+			c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{err.Error()})
 		}
+		return
 	}
 
 	c.JSON(http.StatusOK, wallet)
@@ -47,18 +47,29 @@ func (h *Handler) sendMoney(c *gin.Context) {
 	transaction.From = walletId
 
 	if err := c.BindJSON(&transaction); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatusJSON(http.StatusBadRequest, &app.BadRequestError{
+			Message: "Некорректный формат перевода",
+		})
 		return
 	}
 
 	if transaction.From == transaction.To {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatusJSON(http.StatusBadRequest, &app.BadRequestError{
+			Message: "Совпадение id отправителя и получателя",
+		})
 		return
 	}
 
 	err := h.services.SendMoney(transaction)
+
+	var notFound app.NotFoundError
+	var badRequest app.BadRequestError
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		if errors.As(err, &notFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
+		} else if errors.As(err, &badRequest) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{err.Error()})
+		}
 		return
 	}
 
