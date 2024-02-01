@@ -8,7 +8,7 @@ import (
 type Wallet interface {
 	CreateWallet() (domain.Wallet, error)
 	GetWallet(id string) (domain.Wallet, error)
-	ShowHistory(id string) ([]domain.Transaction, error)
+	GetWalletHistory(walletId string) ([]domain.Transaction, error)
 	SendMoney(tr domain.Transaction) error
 }
 

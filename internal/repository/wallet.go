@@ -33,9 +33,12 @@ func (r WalletRepository) GetWallet(id string) (domain.Wallet, error) {
 	return wallet, nil
 }
 
-func (r WalletRepository) ShowHistory(id string) ([]domain.Transaction, error) {
-	//TODO implement me
-	panic("implement me")
+func (r WalletRepository) GetWalletHistory(walletId string) ([]domain.Transaction, error) {
+	var trs []domain.Transaction
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE "from"=$1 OR "to"=$1`, transactionsTable)
+	err := r.db.Select(&trs, query, walletId)
+
+	return trs, err
 }
 
 func (r WalletRepository) SendMoney(tr domain.Transaction) error {

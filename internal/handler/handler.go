@@ -20,7 +20,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		wallet.POST("/", h.createWallet)
 		wallet.POST("/:walletId/send", h.sendMoney)
 		wallet.GET("/:walletId", h.getWallet)
-		wallet.GET("/:walletId/history", h.getHistory)
+		wallet.GET("/:walletId/history", h.getWalletHistory)
 	}
 
 	return router

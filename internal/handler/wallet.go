@@ -37,8 +37,16 @@ func (h *Handler) getWallet(c *gin.Context) {
 	c.JSON(http.StatusOK, wallet)
 }
 
-func (h *Handler) getHistory(c *gin.Context) {
+func (h *Handler) getWalletHistory(c *gin.Context) {
+	walletId := c.Param("walletId")
 
+	trs, err := h.services.GetWalletHistory(walletId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, trs)
 }
 
 func (h *Handler) sendMoney(c *gin.Context) {
@@ -47,16 +55,16 @@ func (h *Handler) sendMoney(c *gin.Context) {
 	transaction.From = walletId
 
 	if err := c.BindJSON(&transaction); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, &app.BadRequestError{
-			Message: "Некорректный формат перевода",
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{app.BadRequestError{
+			Message: "error: incorrect transaction format",
+		}.Error()})
 		return
 	}
 
 	if transaction.From == transaction.To {
-		c.AbortWithStatusJSON(http.StatusBadRequest, &app.BadRequestError{
-			Message: "Совпадение id отправителя и получателя",
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{app.BadRequestError{
+			Message: "error: sender's and receivers's ids are the same",
+		}.Error()})
 		return
 	}
 
