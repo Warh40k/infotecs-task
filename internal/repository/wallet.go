@@ -13,9 +13,13 @@ type WalletRepository struct {
 
 func (r WalletRepository) CreateWallet() (domain.Wallet, error) {
 	var wallet domain.Wallet
+	id, err := GenerateId()
+	if err != nil {
+		return wallet, app.InternalError{Message: "error generating id"}
+	}
 
-	query := fmt.Sprintf("INSERT INTO %s(balance) VALUES(%d) RETURNING id, balance", walletsTable, defaultBalance)
-	err := r.db.Get(&wallet, query)
+	query := fmt.Sprintf("INSERT INTO %s(id,balance) VALUES($1,$2) RETURNING id, balance", walletsTable)
+	err = r.db.Get(&wallet, query, id, defaultBalance)
 
 	return wallet, err
 }
@@ -57,8 +61,8 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 		return app.NotFoundError{Message: "error getting receiver's wallet", Err: err}
 	}
 
-	fromWallet.Balance = fromWallet.Balance.Sub(tr.Amount)
-	toWallet.Balance = toWallet.Balance.Add(tr.Amount)
+	fromWallet.Balance -= tr.Amount
+	toWallet.Balance += tr.Amount
 
 	if err = updateBalanceTx(tx, fromWallet); err != nil {
 		tx.Rollback()
@@ -70,8 +74,12 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 		return app.BadRequestError{Message: "error updating receiver's balance", Err: err}
 	}
 
-	addTransactionQuery := fmt.Sprintf(`INSERT INTO %s("from","to",amount) VALUES($1,$2,$3)`, transactionsTable)
-	if _, err = tx.Exec(addTransactionQuery, tr.From, tr.To, tr.Amount); err != nil {
+	addTransactionQuery := fmt.Sprintf(`INSERT INTO %s("id","from","to","amount") VALUES($1,$2,$3,$4)`, transactionsTable)
+	id, err := GenerateId()
+	if err != nil {
+		return app.InternalError{Message: "error generating id"}
+	}
+	if _, err = tx.Exec(addTransactionQuery, id, tr.From, tr.To, tr.Amount); err != nil {
 		tx.Rollback()
 		return app.BadRequestError{Message: "error saving transaction", Err: err}
 	}

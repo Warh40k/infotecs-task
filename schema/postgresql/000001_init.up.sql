@@ -1,14 +1,13 @@
-CREATE EXTENSION "uuid-ossp";
 CREATE TABLE wallets
 (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    balance decimal CONSTRAINT nn_balance CHECK (balance >= 0)
+    id VARCHAR PRIMARY KEY,
+    balance FLOAT CONSTRAINT nn_balance CHECK (balance >= 0)
 );
 CREATE TABLE transactions
 (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    "from" uuid REFERENCES wallets ON DELETE RESTRICT,
-    "to" uuid REFERENCES wallets ON DELETE RESTRICT,
-    amount decimal CONSTRAINT nn_amount CHECK (amount >= 0),
-    time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    id VARCHAR PRIMARY KEY,
+    "from" VARCHAR REFERENCES wallets ON DELETE RESTRICT,
+    "to" VARCHAR REFERENCES wallets ON DELETE RESTRICT,
+    amount DECIMAL CONSTRAINT nn_amount CHECK (amount >= 0),
+    time timestamp WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
