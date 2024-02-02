@@ -9,16 +9,14 @@
 ```bash
 docker build --tag=ewallet:latest .
 ```
-2. Запустить контейнера приложения и базы данных в docker-compose:
+2. Запустить контейнеры через docker-compose:
 ```bash
 docker-compose up -d
 ```
-3. Установить go-migrate (если отсутствует)
-```bash
-go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-```
-3. Применить миграции базы данных:
-```bash
-migrate -path ./schema/postgresql/ -database 'postgres://dev:dev@localhost:5432/ewallet?sslmode=disable' up
-```
-PS .env 
+
+## Настройка (необязательно)
+
+- Конфигурация базы данных в файле `.env`
+- Конфигурация подключения к базе данных в файле `configs/config.yaml`
+
+Конфиги загружены в репозиторий с целью демонстрации работы приложения
