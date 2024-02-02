@@ -6,10 +6,10 @@ import (
 )
 
 type Transaction struct {
-	Time   time.Time `json:"time,string" db:"time"`
-	Id     string    `json:"-,string" db:"id"`
-	From   string    `json:"from,string" db:"from"`
-	To     string    `json:"to,string" db:"to"`
+	Time   time.Time `json:"time" db:"time"`
+	Id     string    `json:"-" db:"id"`
+	From   string    `json:"from" db:"from"`
+	To     string    `json:"to" db:"to"`
 	Amount float32   `json:"amount" db:"amount" binding:"gte=0"`
 }
 
