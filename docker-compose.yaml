@@ -1,5 +1,9 @@
 version: '3.8'
 
+volumes:
+  pgdata:
+    driver: local
+
 services:
   db:
     container_name: ewallet-db
@@ -7,8 +11,10 @@ services:
     restart: always
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     env_file:
-      ./compose.env
+      .env
   app:
     container_name: ewallet-app
     depends_on:
@@ -19,4 +25,4 @@ services:
     volumes:
       - ./configs:/app/configs
     env_file:
-      - ./.env
+      - .env
