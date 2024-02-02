@@ -19,17 +19,16 @@ func (h *Handler) createWallet(c *gin.Context) {
 
 func (h *Handler) getWallet(c *gin.Context) {
 	walletId := c.Param("walletId")
-	/*	if walletId == "" {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}*/
 	wallet, err := h.services.GetWallet(walletId)
 	var notFound *app.NotFoundError
 	if err != nil {
 		if errors.As(err, &notFound) {
-			c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
+			//c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
+			c.AbortWithStatus(http.StatusNotFound)
+
 		} else {
-			c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{err.Error()})
+			//c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{err.Error()})
+			c.AbortWithStatus(http.StatusBadRequest)
 		}
 		return
 	}
@@ -42,7 +41,8 @@ func (h *Handler) getWalletHistory(c *gin.Context) {
 
 	trs, err := h.services.GetWalletHistory(walletId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
+		//c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
@@ -51,20 +51,17 @@ func (h *Handler) getWalletHistory(c *gin.Context) {
 
 func (h *Handler) sendMoney(c *gin.Context) {
 	var transaction domain.Transaction
-	walletId := c.Param("walletId")
-	transaction.From = walletId
+	transaction.From = c.Param("walletId")
 
 	if err := c.BindJSON(&transaction); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{app.BadRequestError{
-			Message: "error: incorrect transaction format",
-		}.Error()})
+		//c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{"error: incorrect transaction format"})
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	if transaction.From == transaction.To {
-		c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{app.BadRequestError{
-			Message: "error: sender's and receivers's ids are the same",
-		}.Error()})
+		//c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{"error: sender's and receivers's ids are the same"})
+		c.AbortWithStatus(http.StatusOK)
 		return
 	}
 
@@ -74,9 +71,11 @@ func (h *Handler) sendMoney(c *gin.Context) {
 	var badRequest app.BadRequestError
 	if err != nil {
 		if errors.As(err, &notFound) {
-			c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
+			//c.AbortWithStatusJSON(http.StatusNotFound, statusResponse{err.Error()})
+			c.AbortWithStatus(http.StatusNotFound)
 		} else if errors.As(err, &badRequest) {
-			c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{err.Error()})
+			//c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{err.Error()})
+			c.AbortWithStatus(http.StatusNotFound)
 		}
 		return
 	}
