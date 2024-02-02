@@ -9,5 +9,5 @@ type Transaction struct {
 	Id     string    `json:"-" db:"id"`
 	From   string    `json:"from" db:"from"`
 	To     string    `json:"to" db:"to"`
-	Amount float32   `json:"amount" db:"amount"`
+	Amount float32   `json:"amount" db:"amount" binding:"gte=0"`
 }
