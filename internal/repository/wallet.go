@@ -11,6 +11,7 @@ type WalletRepository struct {
 	db *sqlx.DB
 }
 
+// Create default wallet
 func (r WalletRepository) CreateWallet() (domain.Wallet, error) {
 	var wallet domain.Wallet
 	id, err := GenerateId()
@@ -24,6 +25,7 @@ func (r WalletRepository) CreateWallet() (domain.Wallet, error) {
 	return wallet, err
 }
 
+// Get wallet data
 func (r WalletRepository) GetWallet(id string) (domain.Wallet, error) {
 	var wallet domain.Wallet
 
@@ -31,7 +33,7 @@ func (r WalletRepository) GetWallet(id string) (domain.Wallet, error) {
 	err := r.db.Get(&wallet, query, id)
 
 	if err != nil {
-		return wallet, &app.NotFoundError{Message: "No wallet with the specified id"}
+		return wallet, &app.NotFoundError{Message: "no wallet with the specified id"}
 	}
 
 	return wallet, nil
@@ -39,12 +41,16 @@ func (r WalletRepository) GetWallet(id string) (domain.Wallet, error) {
 
 func (r WalletRepository) GetWalletHistory(walletId string) ([]domain.Transaction, error) {
 	var trs []domain.Transaction
+	if _, err := r.GetWallet(walletId); err != nil {
+		return trs, &app.NotFoundError{Message: "no wallet with the specified id"}
+	}
 	query := fmt.Sprintf(`SELECT * FROM %s WHERE "from"=$1 OR "to"=$1`, transactionsTable)
 	err := r.db.Select(&trs, query, walletId)
 
 	return trs, err
 }
 
+// Process given transaction
 func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 	tx, err := r.db.Beginx()
 	if err != nil {
@@ -66,7 +72,7 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 
 	if err = updateBalanceTx(tx, fromWallet); err != nil {
 		tx.Rollback()
-		return app.InternalError{Message: "error updating sender's balance", Err: err}
+		return app.BadRequestError{Message: "error updating sender's balance", Err: err}
 	}
 
 	if err = updateBalanceTx(tx, toWallet); err != nil {
@@ -87,6 +93,7 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 	return tx.Commit()
 }
 
+// Get wallet during transaction
 func getWalletTx(tx *sqlx.Tx, id string) (domain.Wallet, error) {
 	var wallet domain.Wallet
 	getWalletQuery := fmt.Sprintf(`SELECT * FROM %s WHERE id=$1`, walletsTable)
@@ -94,6 +101,7 @@ func getWalletTx(tx *sqlx.Tx, id string) (domain.Wallet, error) {
 	return wallet, err
 }
 
+// Update balance during transaction
 func updateBalanceTx(tx *sqlx.Tx, wallet domain.Wallet) error {
 	query := fmt.Sprintf("UPDATE %s SET balance=$1 WHERE id=$2", walletsTable)
 	_, err := tx.Exec(query, wallet.Balance, wallet.Id)
