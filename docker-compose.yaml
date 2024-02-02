@@ -9,3 +9,14 @@ services:
       - "5432:5432"
     env_file:
       ./compose.env
+  app:
+    container_name: ewallet-app
+    depends_on:
+      - db
+    image: ewallet:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./configs:/app/configs
+    env_file:
+      - ./.env

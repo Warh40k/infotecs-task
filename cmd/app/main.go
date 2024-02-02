@@ -5,14 +5,13 @@ import (
 	"github.com/Warh40k/infotecs_task/internal/handler"
 	"github.com/Warh40k/infotecs_task/internal/repository"
 	"github.com/Warh40k/infotecs_task/internal/service"
-	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
 )
 
 func initConfig() error {
-	viper.AddConfigPath("configs")
+	viper.AddConfigPath("./configs")
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()
 }
@@ -23,9 +22,9 @@ func main() {
 		logrus.Fatalf("Ошибка чтения конфигурации: %s", err.Error())
 	}
 
-	if err := godotenv.Load(); err != nil {
+	/*	if err := godotenv.Load(); err != nil {
 		logrus.Fatalf("Ошибка чтения переменных окружения: %s", err.Error())
-	}
+	}*/
 
 	db, err := repository.NewPostgresDB(repository.Config{
 		Host:     viper.GetString("db.host"),
