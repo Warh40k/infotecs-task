@@ -75,7 +75,7 @@ func (h *Handler) sendMoney(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 		} else if errors.As(err, &badRequest) {
 			//c.AbortWithStatusJSON(http.StatusBadRequest, statusResponse{err.Error()})
-			c.AbortWithStatus(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusBadRequest)
 		}
 		return
 	}

@@ -53,7 +53,7 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 
 	fromWallet, err := getWalletTx(tx, tr.From)
 	if err != nil {
-		return app.NotFoundError{Message: "error getting sender's wallet", Err: err}
+		return app.BadRequestError{Message: "error getting sender's wallet", Err: err}
 	}
 
 	toWallet, err := getWalletTx(tx, tr.To)
@@ -66,12 +66,12 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 
 	if err = updateBalanceTx(tx, fromWallet); err != nil {
 		tx.Rollback()
-		return app.BadRequestError{Message: "error updating sender's balance", Err: err}
+		return app.InternalError{Message: "error updating sender's balance", Err: err}
 	}
 
 	if err = updateBalanceTx(tx, toWallet); err != nil {
 		tx.Rollback()
-		return app.BadRequestError{Message: "error updating receiver's balance", Err: err}
+		return app.InternalError{Message: "error updating receiver's balance", Err: err}
 	}
 
 	addTransactionQuery := fmt.Sprintf(`INSERT INTO %s("id","from","to","amount") VALUES($1,$2,$3,$4)`, transactionsTable)
@@ -81,7 +81,7 @@ func (r WalletRepository) SendMoney(tr domain.Transaction) error {
 	}
 	if _, err = tx.Exec(addTransactionQuery, id, tr.From, tr.To, tr.Amount); err != nil {
 		tx.Rollback()
-		return app.BadRequestError{Message: "error saving transaction", Err: err}
+		return app.InternalError{Message: "error saving transaction", Err: err}
 	}
 
 	return tx.Commit()
