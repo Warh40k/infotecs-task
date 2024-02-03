@@ -13,6 +13,7 @@ docker build --tag=ewallet:latest .
 ```bash
 docker-compose up -d
 ```
+По умолчанию API будет доступно по адресу localhost:8080
 
 ## Настройка (необязательно)
 
